@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<ul>
+	{% for r in instrument_reading %}
+	<li>
+	{{r}}
+	</li>
+	{% endfor %}
+</ul>
+{% endblock %}
