@@ -9,5 +9,6 @@ class RateAdmin(admin.ModelAdmin):
 
 @admin.register(InstrumentReading)
 class InstrumentReadingAdmin(admin.ModelAdmin):
+    pass
     #fields = ('date', 'service', 'rate')
-    list_display = ('date', 'flat', 'service', 'meter_device', 'value')
+    #list_display = ('date', 'flat', 'service', 'meter_device', 'value')

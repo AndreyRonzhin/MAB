@@ -11,18 +11,44 @@ from building.models import Flat, MeterDevice
 from background_information.models import UtilityService
 
 
-class AddReadingsFormNew(forms.Form):
+class AddReadingsForm(forms.ModelForm):
 
-    date_ = forms.DateField(widget=NumberInput(attrs={'type': 'date'}), label='Дата показаний')
+    date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}),
+                            label='Дата показаний')
+    class Meta:
+        model = InstrumentReading
+        fields = ['date']
 
     def __init__(self, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
+        self.fields['date'].initial = datetime.date.today()
 
-        self.fields['date_'].initial = datetime.date.today()
+        param_devaces = kwargs.get('initial', None)
 
-        devices = MeterDevice.objects.all()
+        if param_devaces:
+            for device in param_devaces:
+                name_field = f"value_{device['id']}"
+                self.fields[name_field] = forms.FloatField(label=device['name'])
 
-        for i, devices in enumerate(devices):
-            name_field = f'value_{i}'
-            self.fields[name_field] = forms.FloatField(label=devices)
+    def save(self, commit=True):
+        self.cleaned_data
+
+
+class AddReadingsFormNew(forms.Form):
+
+    date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}),
+                            label='Дата показаний')
+    def __init__(self, *args, **kwargs):
+
+        param_devaces = kwargs.get('param_devaces',None)
+        if param_devaces:
+            kwargs.pop('param_devaces')
+
+        super().__init__(*args, **kwargs)
+        self.fields['date'].initial = datetime.date.today()
+
+        if param_devaces:
+            for device in param_devaces:
+                name_field = f"value_{device['id']}"
+                self.fields[name_field] = forms.FloatField(label=device['name'])

@@ -46,6 +46,8 @@ class Flat(BuildingBase):
 
 class MeterDevice(models.Model):
     name = models.CharField(max_length=255)
+    flat = models.ForeignKey(Flat, related_name='falat', on_delete=models.PROTECT, null=True, blank=True)
+    is_installed = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
         return self.name

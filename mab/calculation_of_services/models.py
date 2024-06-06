@@ -1,5 +1,7 @@
 from django.db import models
 
+from datetime import datetime
+
 from background_information.models import UtilityService
 from building.models import Flat, MeterDevice
 
@@ -21,27 +23,21 @@ class Rate(models.Model):
 
 
 class InstrumentReading(models.Model):
-    date = models.DateField(verbose_name="Дата ввода", unique=True)
+    date = models.DateField(verbose_name="Дата ввода")
     flat = models.ForeignKey(Flat,
                              on_delete=models.PROTECT,
                              null=False,
                              blank=False,
-                             verbose_name="Квартира",
-                             unique_for_date="date")
-    service = models.ForeignKey(UtilityService,
-                                on_delete=models.PROTECT,
-                                null=False, blank=False,
-                                verbose_name="Комунальная услуга",
-                                unique_for_date="date")
+                             verbose_name="Квартира")
     meter_device = models.ForeignKey(MeterDevice,
                                 on_delete=models.PROTECT,
                                 null=False, blank=False,
                                 verbose_name="Прибор учета",
                                 unique_for_date="date")
-    value = models.DecimalField(max_digits=20, decimal_places=5, verbose_name="Показания")
+    value = models.DecimalField(max_digits=20, decimal_places=5, verbose_name="Покаания")
 
     def __str__(self):
-        return f'{self.flat}({self.meter_device}) c {self.value}'
+        return f"{self.date.strftime('%B')} {self.flat} ({self.meter_device}) c {self.value}"
 
     class Meta:
         verbose_name = "Показания прибора учета"

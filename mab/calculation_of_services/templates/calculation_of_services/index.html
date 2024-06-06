@@ -4,7 +4,7 @@
 <ul>
 	{% for r in instrument_reading %}
 	<li>
-	{{r}}
+		<a href="showreadings?year={{ r.date__year }}&month={{ r.date__month }}">Показания за {{ r.date__month }}</a>
 	</li>
 	{% endfor %}
 </ul>
