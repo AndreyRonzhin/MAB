@@ -16,3 +16,10 @@ class User(AbstractUser):
                              null=True,
                              blank=True,
                              verbose_name="Лицевой счет")
+
+    is_accountant = models.BooleanField(verbose_name="Бухгалтер")
+
+    # def save(self, *args, **kwargs):
+    #     self.is_accountant = False
+    #     super().save(*args, **kwargs)
+    #     return self

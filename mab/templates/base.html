@@ -16,7 +16,7 @@
 		<div class="header">
 			<ul id="mainmenu" class="mainmenu">
 			<li class="logo"><a href="#"><div class="logo"></div></a></li>
-{% for m in menu %}
+{% for m in mainmenu %}
 		<li><a href="{% url m.url_name %}">{{m.title}}</a></li>
 {% endfor %}
 

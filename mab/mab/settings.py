@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_extensions',
+    'debug_toolbar',
     'background_information.apps.BackgroundInformationConfig',
     'building.apps.BuildingConfig',
     'calculation_of_services.apps.CalculationOfServicesConfig',
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'mab.urls'
@@ -72,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'users.context_processors.get_main_menu',
             ],
         },
     },
@@ -90,7 +93,9 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '12345',
         'HOST': 'localhost',
-        'PORT': 5432,
+        'PORT': 5434,
+        # 'HOST': 'pgdb_mab',
+        # 'PORT': 5432,
     }
 }
 
@@ -119,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-RU'
 
-TIME_ZONE = 'Europe/Moscow'
+TIME_ZONE = 'Europe/Ulyanovsk'
 
 USE_I18N = True
 
@@ -150,8 +155,26 @@ REST_FRAMEWORK = {
     ]
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+
+        "LOCATION": "redis://127.0.0.1:6379",
+        #"LOCATION": "redis://redis_mab:6379",
+    }
+}
+
 LOGIN_REDIRECT_URL = 'calculation:home'
 LOGOUT_REDIRECT_URL = 'calculation:home'
 LOGIN_URL = 'users:login'
 
 AUTH_USER_MODEL = 'users.User'
+
+# Celery Broker - Redis
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# CELERY_BROKER_URL = 'redis://redis_mab:6379'
+# CELERY_RESULT_BACKEND = 'redis://redis_mab:6379'
+
+CELERY_TIMEZONE = "Europe/Ulyanovsk"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

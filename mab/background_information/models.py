@@ -25,11 +25,25 @@ class UtilityService(models.Model):
         METER_DEVICE = 3, 'по прибору'
         #FORMULA = 4, 'формула'
 
+    class TypeOfDevice(models.IntegerChoices):
+        DEFAULT = 0, 'вид прибора не определён'
+        COLD_WATER = 1, 'Холодная вода'
+        HOT_WATER = 2, 'Горячая вода'
+        ELECTRICITY = 3, 'Электроэнергия'
+        ELECTRICITY_DAY = 4, 'Электроэнергия день'
+        ELECTRICITY_NIGHT = 5, 'Электроэнергия ночь'
+
+
     fullname = models.CharField(max_length=255,  verbose_name="Наименование")
     unit_of_measure = models.ForeignKey("UnitsOfMeasures", on_delete=models.PROTECT, verbose_name="Ед. имерения")
+
     quantify = models.IntegerField(choices=TypesOfQuantity.choices,
                                    default=TypesOfQuantity.DEFAULT,
                                    verbose_name="Количество для расчета")
+
+    type_device = models.IntegerField(choices=TypeOfDevice.choices,
+                                      default=TypeOfDevice.DEFAULT,
+                                      verbose_name="Тип прибора учета")
 
     def __str__(self):
         return self.fullname

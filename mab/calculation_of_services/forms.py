@@ -17,22 +17,8 @@ class AddReadingsForm(forms.ModelForm):
                             label='Дата показаний')
     class Meta:
         model = InstrumentReading
-        fields = ['date']
+        fields = ['date', 'flat', 'meter_device', 'value']
 
-    def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-        self.fields['date'].initial = datetime.date.today()
-
-        param_devaces = kwargs.get('initial', None)
-
-        if param_devaces:
-            for device in param_devaces:
-                name_field = f"value_{device['id']}"
-                self.fields[name_field] = forms.FloatField(label=device['name'])
-
-    def save(self, commit=True):
-        self.cleaned_data
 
 
 class AddReadingsFormNew(forms.Form):
@@ -41,14 +27,14 @@ class AddReadingsFormNew(forms.Form):
                             label='Дата показаний')
     def __init__(self, *args, **kwargs):
 
-        param_devaces = kwargs.get('param_devaces',None)
-        if param_devaces:
-            kwargs.pop('param_devaces')
+        devices = kwargs.get('param_devices', None)
+        if devices:
+            kwargs.pop('param_devices')
 
         super().__init__(*args, **kwargs)
         self.fields['date'].initial = datetime.date.today()
 
-        if param_devaces:
-            for device in param_devaces:
-                name_field = f"value_{device['id']}"
-                self.fields[name_field] = forms.FloatField(label=device['name'])
+        if devices:
+            for device in devices:
+                name_field = f"value_{device.id}"
+                self.fields[name_field] = forms.FloatField(label=device.name)

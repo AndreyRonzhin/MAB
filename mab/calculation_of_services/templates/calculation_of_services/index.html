@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if user.is_accountant %}
+<ul>
+	{% for r in accrual_services %}
+	<li>
+		<a href="*">Начисления за {{ r.date }} {{r.flat}}</a>
+	</li>
+	{% endfor %}
+</ul>
+{% else %}
 <ul>
 	{% for r in instrument_reading %}
 	<li>
@@ -8,4 +17,5 @@
 	</li>
 	{% endfor %}
 </ul>
+{% endif %}
 {% endblock %}

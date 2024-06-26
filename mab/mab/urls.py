@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/v1/personelist/', PrivatePersonViewSet.as_view()),
     path('api/v1/buildinglist/', ApartmentBlockViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('api/v1/buildinglist/<int:pk>/', ApartmentBlockViewSet.as_view({'get': 'retrieve'})),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
