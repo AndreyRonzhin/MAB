@@ -7,7 +7,7 @@ from .models import *
 @admin.register(PrivatePerson)
 class PrivatePersonAdmin(admin.ModelAdmin):
     readonly_fields = ('id',)
-    fields = ('id', 'fullname', 'firstname', 'lastname')
+    fields = ('id', 'firstname', 'lastname', 'middlename')
 
 #admin.site.register(PrivatePerson)
 admin.site.register(UtilityService)

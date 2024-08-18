@@ -17,16 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from background_information.views import *
-
 
 from building.views import *
 
 urlpatterns = [
     path('', include('calculation_of_services.urls', namespace="calculation")),
+    path('api/v1/', include('background_information.urls', namespace="background_information")),
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace="users")),
-    path('api/v1/personelist/', PrivatePersonViewSet.as_view()),
     path('api/v1/buildinglist/', ApartmentBlockViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('api/v1/buildinglist/<int:pk>/', ApartmentBlockViewSet.as_view({'get': 'retrieve'})),
     path("__debug__/", include("debug_toolbar.urls")),

@@ -16,11 +16,13 @@ class LoginUser(LoginView):
     def get_success_url(self):
         return reverse_lazy('calculation:home')
 
+
 class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = 'users/register.html'
     extra_context = {'title': "Регистрация"}
     success_url = reverse_lazy('users:login')
+
 
 def logout_user(request):
     logout(request)

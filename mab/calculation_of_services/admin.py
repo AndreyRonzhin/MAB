@@ -13,6 +13,10 @@ class InstrumentReadingAdmin(admin.ModelAdmin):
     #fields = ('date', 'service', 'rate')
     #list_display = ('date', 'flat', 'service', 'meter_device', 'value')
 
+@admin.register(PersonalAccount)
+class PersonalAccountAdmin(admin.ModelAdmin):
+    pass
+
 @admin.register(ListOfService)
 class ListOfServiceAdmin(admin.ModelAdmin):
     pass

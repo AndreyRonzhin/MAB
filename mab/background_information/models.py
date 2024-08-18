@@ -4,13 +4,12 @@ from django.dispatch import receiver
 
 
 class PrivatePerson(models.Model):
-    fullname = models.CharField(max_length=255, blank=True, verbose_name="Наименование")
     firstname = models.CharField(max_length=255, verbose_name="Фамилия")
     lastname = models.CharField(max_length=255, verbose_name="Имя")
     middlename = models.CharField(max_length=255, blank=True, verbose_name="Отчество")
 
     def __str__(self):
-        return self.fullname
+        return f'{self.firstname} {self.lastname} {self.middlename}'
 
     class Meta:
         verbose_name = "Физическое лицо"
@@ -64,17 +63,3 @@ class UnitsOfMeasures(models.Model):
     class Meta:
         verbose_name = "Единицы измерения"
         verbose_name_plural = "Единицы измерения"
-
-
-
-@receiver(signals.pre_save, sender=PrivatePerson)
-def create_private_person(sender, instance, **kwargs):
-    
-    if not instance.fullname:
-        
-        fullname = [instance.lastname, instance.firstname]
-        
-        if instance.middlename:
-            fullname.append(instance.middlename)
-        
-        instance.fullname = ' '.join(fullname)

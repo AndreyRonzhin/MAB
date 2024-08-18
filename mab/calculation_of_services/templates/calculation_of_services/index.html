@@ -5,7 +5,7 @@
 <ul>
 	{% for r in accrual_services %}
 	<li>
-		<a href="*">Начисления за {{ r.date }} {{r.flat}}</a>
+		<a href="editaccruals/{{ r.pk }}">Начисление за {{ r.date|date:"F"}} {{r.flat}}</a>
 	</li>
 	{% endfor %}
 </ul>
@@ -19,3 +19,4 @@
 </ul>
 {% endif %}
 {% endblock %}
+

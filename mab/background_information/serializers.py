@@ -15,6 +15,7 @@ class PrivatePersonSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
     class Meta:
         model = PrivatePerson
         fields = ['firstname', 'lastname', 'middlename']

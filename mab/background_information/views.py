@@ -43,7 +43,7 @@ class PrivatePersonViewSet(APIView):
         return Response(PrivatePersonSerializer(p, many=True).data)
 
     def post(self, request):
-        serializer = PrivatePersonSerializer(data=request.data, many=True)
+        serializer = PrivatePersonSerializer(data=request.data, many=False)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
