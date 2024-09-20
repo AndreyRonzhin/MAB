@@ -11,40 +11,22 @@ from rest_framework.views import APIView
 from .models import PrivatePerson
 from .serializers import PrivatePersonSerializer
 
-#viewsets.ModelViewSet
-#class PrivatePersonAPIList(generics.ListCreateAPIView):
-#     queryset = PrivatePerson.objects.all()
-#     serializer_class = PrivatePersonSerializer
-#
-#     def create(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data, many=True)
-#         serializer.is_valid(raise_exception=True)
-#         self.perform_create(serializer)
-#         headers = self.get_success_headers(serializer.data)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+class  PrivatePersonViewSet(viewsets.ModelViewSet):
+    queryset = PrivatePerson.objects.all()
+    serializer_class = PrivatePersonSerializer
 
-#class PrivatePersonViewSet(mixins.CreateModelMixin,
-#                    mixins.RetrieveModelMixin,
-#                    mixins.ListModelMixin,
-#                    GenericViewSet):
-#     serializer_class = PrivatePersonSerializer
-#
-#     def get_queryset(self):
-#         pk = self.kwargs.get("pk")
-#
-#         if not pk:
-#             return PrivatePerson.objects.all()
-#
-#         return PrivatePerson.objects.filter(pk=pk)
-class PrivatePersonViewSet(APIView):
+    @action(detail=False, methods=['get'])
+    def find(self, request):
 
-    def get(self, request):
-        p = PrivatePerson.objects.all()
-        return Response(PrivatePersonSerializer(p, many=True).data)
+        name_params = ('firstname', 'lastname', 'middlename')
 
-    def post(self, request):
-        serializer = PrivatePersonSerializer(data=request.data, many=False)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        filter_name = {}
 
-        return Response(serializer.data)
+        for name in name_params:
+            value_param = request.query_params.get(name)
+            if value_param:
+                filter_name[f'{name}__icontains'] = value_param
+
+        qs_private_person = PrivatePerson.objects.filter(**filter_name)
+
+        return Response(self.serializer_class(qs_private_person, many=True).data)

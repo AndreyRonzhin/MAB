@@ -1,9 +1,8 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
-
+from rest_framework import routers
 
 app_name = "background_information"
 
-urlpatterns = [
-    path('persone/', PrivatePersonViewSet.as_view()),
-]
+
+urlpatterns = []

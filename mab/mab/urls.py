@@ -20,12 +20,17 @@ from django.urls import path, include
 
 from building.views import *
 
+api_v1_patterns = [
+    path('', include('background_information.urls_api', namespace="background_information_api"))
+]
+
 urlpatterns = [
     path('', include('calculation_of_services.urls', namespace="calculation")),
-    path('api/v1/', include('background_information.urls', namespace="background_information")),
+    path('background_information/', include('background_information.urls', namespace="background_information")),
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace="users")),
-    path('api/v1/buildinglist/', ApartmentBlockViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('api/v1/buildinglist/<int:pk>/', ApartmentBlockViewSet.as_view({'get': 'retrieve'})),
+    path('api/v1/', include(api_v1_patterns)),
+    # path('api/v1/buildinglist/', ApartmentBlockViewSet.as_view({'get': 'list', 'post': 'create'})),
+    # path('api/v1/buildinglist/<int:pk>/', ApartmentBlockViewSet.as_view({'get': 'retrieve'})),
     path("__debug__/", include("debug_toolbar.urls")),
 ]

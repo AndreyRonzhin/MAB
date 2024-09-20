@@ -73,8 +73,8 @@ class PersonalAccount(models.Model):
 
     payer = models.ForeignKey(PrivatePerson,
                               on_delete=models.PROTECT,
-                              null=False,
-                              blank=False,
+                              null=True,
+                              blank=True,
                               related_name='personal_account',
                               verbose_name="Плательщик")
 
