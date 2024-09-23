@@ -7,8 +7,6 @@ app_name = "background_information_api"
 router = routers.SimpleRouter()
 router.register(r'persone', PrivatePersonViewSet)
 
-print(router.urls)
-
 urlpatterns = [
     path('', include(router.urls)),
 ]

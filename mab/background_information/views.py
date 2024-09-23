@@ -11,7 +11,8 @@ from rest_framework.views import APIView
 from .models import PrivatePerson
 from .serializers import PrivatePersonSerializer
 
-class  PrivatePersonViewSet(viewsets.ModelViewSet):
+
+class PrivatePersonViewSet(viewsets.ModelViewSet):
     queryset = PrivatePerson.objects.all()
     serializer_class = PrivatePersonSerializer
 
