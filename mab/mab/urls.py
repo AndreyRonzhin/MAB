@@ -21,7 +21,8 @@ from django.urls import path, include
 from building.views import *
 
 api_v1_patterns = [
-    path('', include('background_information.urls_api', namespace="background_information_api"))
+    path('', include('background_information.urls_api', namespace="background_information_api")),
+    path('', include('calculation_of_services.urls_api', namespace="calculation_of_services_api"))
 ]
 
 urlpatterns = [
