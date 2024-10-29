@@ -2,6 +2,12 @@ from django.contrib import admin
 
 from .models import *
 
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    fields = ('name',)
+    list_display = ('name',)
+
 @admin.register(Rate)
 class RateAdmin(admin.ModelAdmin):
     fields = ('date', 'service', 'rate')
@@ -31,4 +37,4 @@ class AccrualOfServicesAdmin(admin.ModelAdmin):
 
 @admin.register(SheetOfServices)
 class SheetOfServicesAdmin(admin.ModelAdmin):
-    pass
+    list_display = [f.name for f in SheetOfServices._meta.fields]
