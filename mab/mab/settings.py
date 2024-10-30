@@ -171,8 +171,8 @@ LOGIN_URL = 'users:login'
 AUTH_USER_MODEL = 'users.User'
 
 # Celery Broker - Redis
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@localhost'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 # CELERY_BROKER_URL = 'redis://redis_mab:6379'
 # CELERY_RESULT_BACKEND = 'redis://redis_mab:6379'
 
