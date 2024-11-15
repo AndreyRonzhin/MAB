@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'building.apps.BuildingConfig',
     'calculation_of_services.apps.CalculationOfServicesConfig',
     'users.apps.UsersConfig',
+    'exchange.apps.ExchangeConfig',
 ]
 
 MIDDLEWARE = [
@@ -136,7 +137,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    'static',
+    #'static',
     BASE_DIR / 'static',
 ]
 
@@ -178,3 +179,5 @@ CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@localhost'
 
 CELERY_TIMEZONE = "Europe/Ulyanovsk"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+EXCHANGE_DIR = 'mab'

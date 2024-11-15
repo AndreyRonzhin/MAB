@@ -22,10 +22,10 @@ class UtilityService(models.Model):
         SQUARE = 1, 'полщадь квартиры'
         QUANTITY_OF_PEOPLE = 2, 'количество людей'
         METER_DEVICE = 3, 'по прибору'
-        #FORMULA = 4, 'формула'
+        FORMULA = 4, 'формула'
 
     class TypeOfDevice(models.IntegerChoices):
-        DEFAULT = 0, 'вид прибора не определён'
+        DEFAULT = 0, 'тип прибора не определён'
         COLD_WATER = 1, 'Холодная вода'
         HOT_WATER = 2, 'Горячая вода'
         ELECTRICITY = 3, 'Электроэнергия'

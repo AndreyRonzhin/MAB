@@ -3,8 +3,8 @@ from django.db import models
 from background_information.models import PrivatePerson, UtilityService
 
 
-
 class BuildingBase(models.Model):
+
     number = models.CharField(max_length=25)
 
     class Meta:
@@ -12,6 +12,12 @@ class BuildingBase(models.Model):
 
 
 class ApartmentBlock(BuildingBase):
+
+    region = models.CharField(max_length=225, blank=True)
+    city = models.CharField(max_length=225, blank=True)
+    street = models.CharField(max_length=225, blank=True)
+    address = models.CharField(max_length=1000, blank=True)
+
     def __str__(self):
         return f"Дом №{self.number}"
 
