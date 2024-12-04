@@ -14,8 +14,8 @@ locale.setlocale(
 
 
 class Company(models.Model):
-
     name = models.CharField(max_length=255, null=False, blank=False, verbose_name='Наименование')
+    inn = models.CharField(max_length=12, null=True, blank=True, verbose_name='ИНН')
 
     class Meta:
         verbose_name = "Организация"
@@ -26,7 +26,6 @@ class Company(models.Model):
 
 
 class Rate(models.Model):
-
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
@@ -78,8 +77,12 @@ class PersonalAccount(models.Model):
         UTILITIES = 0, 'коммунальные услуги'
         MAJOR_RENOVATION = 1, 'капитальный ремонт'
 
+    number = models.CharField(max_length=25,
+                              null=False,
+                              blank=False,
+                              db_index=True,
+                              verbose_name='Лицевой счет')
 
-    numbers = models.CharField(max_length=25, null=False, blank=False, db_index=True)
     flat = models.ForeignKey(Flat,
                              on_delete=models.PROTECT,
                              null=False, blank=False,
@@ -101,23 +104,29 @@ class PersonalAccount(models.Model):
 
     closing_date = models.DateField(null=True, blank=True, verbose_name="Дата закрытия")
 
+    id_gis = models.CharField(max_length=13,
+                              null=True,
+                              blank=True,
+                              verbose_name='Идентификатор ЖКУ')
+
     list_of_service = models.ForeignKey('ListOfService',
                                         on_delete=models.PROTECT,
-                                        null=False,
-                                        blank=False,
+                                        null=True,
+                                        blank=True,
                                         related_name='personal_account',
                                         verbose_name="Список услуг")
 
     class Meta:
         verbose_name = "Лицевой счет"
         verbose_name_plural = "Лицевые счета"
+        ordering = ['number']
 
     def __str__(self):
-        return f'Лицевой счет №{self.numbers}'
+        closed = '' if self.is_active else ' закрыт'
+        return f'Лицевой счет №{self.number}{closed}'
 
 
 class ListOfService(models.Model):
-
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
@@ -135,7 +144,6 @@ class ListOfService(models.Model):
 
 
 class ServiceActions(models.Model):
-
     date = models.DateField(verbose_name="Период")
     list_service = models.ForeignKey(ListOfService,
                                      on_delete=models.PROTECT,
@@ -161,20 +169,35 @@ class ServiceActions(models.Model):
 
 
 class AccrualOfServices(models.Model):
-
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
-                                verbose_name="Организация",
-                                related_name='accrual_of_services')
-
+                                related_name='accrual_of_services',
+                                verbose_name="Организация")
     date = models.DateField(verbose_name="Период")
     apartment_block = models.ForeignKey(ApartmentBlock,
-                                        related_name='apartment_block',
+                                        related_name='accrual_of_services',
                                         on_delete=models.PROTECT,
-                                        null=True)
-    entrance = models.ForeignKey(Entrance, related_name='accrual_services', on_delete=models.PROTECT, null=True)
-    flat = models.ForeignKey(Flat, related_name='accrual_services', on_delete=models.PROTECT, null=True, blank=True)
+                                        null=True,
+                                        verbose_name="Дом")
+    entrance = models.ForeignKey(Entrance,
+                                 related_name='entrance',
+                                 on_delete=models.PROTECT,
+                                 null=True,
+                                 blank=True,
+                                 verbose_name="Подъезд")
+    flat = models.ForeignKey(Flat,
+                             related_name='accrual_of_services',
+                             on_delete=models.PROTECT,
+                             null=True,
+                             blank=True,
+                             verbose_name="Квартира")
+    personal_account = models.ForeignKey(PersonalAccount,
+                                         related_name='accrual_of_services',
+                                         on_delete=models.PROTECT,
+                                         null=True,
+                                         blank=True,
+                                         verbose_name="Лицевой счет")
     area_of_apartments = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     list_service = models.ForeignKey(ListOfService,
                                      on_delete=models.PROTECT,
@@ -183,11 +206,12 @@ class AccrualOfServices(models.Model):
                                      verbose_name="Список услуг")
 
     def __str__(self):
-        return f"Начисления услуг за {self.date.strftime('%B')} {self.flat}"
+        return f"Начисления услуг за {self.date.strftime('%B')} {self.flat} {self.personal_account}"
 
     class Meta:
         verbose_name = "Начисление услуг"
         verbose_name_plural = "Начисление услуг"
+        ordering = ['-date', 'personal_account__number']
 
 
 class SheetOfServices(models.Model):
@@ -197,13 +221,13 @@ class SheetOfServices(models.Model):
                                          related_name='sheet_services',
                                          verbose_name="Начисление услуг")
     service = models.ForeignKey(UtilityService,
-                                related_name='sheet_services',
+                                related_name='service',
                                 on_delete=models.PROTECT,
                                 null=False,
                                 blank=False,
                                 verbose_name="Комунальная услуга")
     meter_device = models.ForeignKey(MeterDevice,
-                                     related_name='sheet_services',
+                                     related_name='meter_device',
                                      on_delete=models.PROTECT,
                                      null=False, blank=False,
                                      verbose_name="Прибор учета")
@@ -226,4 +250,3 @@ class SheetOfServices(models.Model):
     class Meta:
         verbose_name = "Таблица начисленных услуг"
         verbose_name_plural = "Таблица начисленных услуг"
-

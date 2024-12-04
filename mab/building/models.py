@@ -30,7 +30,7 @@ class Entrance(BuildingBase):
     apartment_block = models.ForeignKey('ApartmentBlock', related_name='entrance', on_delete=models.PROTECT, null=True)
 
     def __str__(self):
-        return f"Подъезд №{self.number}"
+        return f"Подъезд №{self.number} {self.apartment_block}"
 
     class Meta:
         verbose_name = "Подъезд"
@@ -56,15 +56,30 @@ class Flat(BuildingBase):
 
 class MeterDevice(models.Model):
 
-    name = models.CharField(max_length=255)
     flat = models.ForeignKey(Flat, related_name='meter_device', on_delete=models.PROTECT, null=True, blank=True)
     type_device = models.IntegerField(choices=UtilityService.TypeOfDevice.choices,
                                       default=UtilityService.TypeOfDevice.DEFAULT,
                                       verbose_name="Тип прибора учета")
-    is_installed = models.BooleanField(null=True, blank=True)
+    is_installed = models.BooleanField(default=False, verbose_name="Установлен")
+    factory_number = models.CharField(max_length=50, null=True, blank=True, verbose_name="Заводской (серийный) номер")
+    brand = models.CharField(max_length=100, null=True, blank=True, verbose_name="Марка")
+    type = models.CharField(max_length=100, null=True, blank=True, verbose_name="Модел")
+    verification_interval = models.IntegerField(default=0, verbose_name="Межповерочный интервал")
+    electricity = models.BooleanField(default=False, verbose_name="Учет электроэнергии")
+    number_of_tariffs = models.IntegerField(default=0, verbose_name="Количество тарифов")
+    remote_reading = models.BooleanField(default=False, verbose_name="Дистанционного снятия показаний")
+    date_of_sealing = models.DateField(null=True, blank=True, verbose_name="Дата опломбирования")
+    installation_date = models.DateField(null=True, blank=True, verbose_name="Дата установки")
+    commissioning_date = models.DateField(null=True, blank=True, verbose_name="Дата ввода в эксплуатацию")
+    decommissioning_date = models.DateField(null=True, blank=True, verbose_name="Дата вывода из эксплуатации")
+
+    id_gis = models.CharField(max_length=13,
+                              null=True,
+                              blank=True,
+                              verbose_name="Идентификатор ЖКУ")
 
     def __str__(self):
-        return f"{UtilityService.TypeOfDevice(self.type_device).label} {str(self.flat).lower()}"
+        return f"{UtilityService.TypeOfDevice(self.type_device).label} №{self.factory_number} {str(self.flat).lower()}"
 
     class Meta:
         verbose_name = "Прибор учета"

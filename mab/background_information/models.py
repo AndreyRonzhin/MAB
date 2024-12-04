@@ -44,6 +44,8 @@ class UtilityService(models.Model):
                                       default=TypeOfDevice.DEFAULT,
                                       verbose_name="Тип прибора учета")
 
+    additionally = models.BooleanField(default=False, verbose_name="Дополнительная")
+
     def __str__(self):
         return self.fullname
 

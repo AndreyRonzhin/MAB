@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'calculation_of_services.apps.CalculationOfServicesConfig',
     'users.apps.UsersConfig',
     'exchange.apps.ExchangeConfig',
+    'dal',
+    'dal_select2',
 ]
 
 MIDDLEWARE = [

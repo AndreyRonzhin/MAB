@@ -13,4 +13,5 @@ urlpatterns = [
     path('addreadingsnew', views.add_readings_new, name='addReadingsNew'),
     path('createaccruals', views.create_accruals, name='createAccruals'),
     path('editaccruals/<int:id>', views.edit_accruals, name='editAccruals'),
+    path('entrance_autocomplete', views.EntranceAutocompleteView.as_view(), name='entrance_autocomplete'),
 ]

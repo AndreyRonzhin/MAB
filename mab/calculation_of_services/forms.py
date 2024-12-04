@@ -1,4 +1,5 @@
 import datetime
+from dal import autocomplete
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -7,7 +8,7 @@ from django.forms import NumberInput
 from django.utils.deconstruct import deconstructible
 
 from .models import InstrumentReading, AccrualOfServices, SheetOfServices
-from building.models import Flat, MeterDevice, ApartmentBlock
+from building.models import Flat, MeterDevice, ApartmentBlock, Entrance
 from background_information.models import UtilityService
 
 from datetime import date
@@ -73,7 +74,23 @@ class CreateAccruls(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['date'].initial = datetime.date.today()
 
+
 class EditAccrualsForm(forms.ModelForm):
+
+    class Meta:
+        model = AccrualOfServices
+        fields = '__all__'
+
+
+class AccrualOfServicesForm(forms.ModelForm):
+
+    entrance = forms.ModelChoiceField(
+        queryset=Entrance.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='calculation:entrance_autocomplete',
+            forward=['apartment_block']
+        ),
+    )
 
     class Meta:
         model = AccrualOfServices

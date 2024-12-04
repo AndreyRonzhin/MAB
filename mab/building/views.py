@@ -1,10 +1,11 @@
+from dal import autocomplete
 from django.shortcuts import render
 from rest_framework import mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from .models import ApartmentBlock
+from .models import ApartmentBlock, Entrance
 from .serializers import ApartmentBlockSerializer
 
 
@@ -34,3 +35,6 @@ class ApartmentBlockViewSet(ModelViewSet):
     #     # headers = self.get_success_headers(serializer.data)
     #     # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
     #     return None
+
+
+

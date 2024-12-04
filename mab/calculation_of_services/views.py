@@ -1,3 +1,5 @@
+from dal import autocomplete
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Max
@@ -183,3 +185,18 @@ def edit_accruals(request, id):
         formset = SheetOfServicesInlineFormSet(instance=accrual_of_services)
     return render(request, "calculation_of_services/editAccrual.html", {"formset": formset,
                                                                                             "form": form})
+
+
+class EntranceAutocompleteView(autocomplete.Select2QuerySetView):
+
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Entrance.objects.none()
+
+        apartment_block = self.forwarded.get('apartment_block', None)
+        if apartment_block:
+            qs = Entrance.objects.filter(apartment_block=apartment_block)
+        else:
+            qs = Entrance.objects.none()
+
+        return qs
