@@ -21,7 +21,8 @@ from django.db import transaction
 from models.api_calculation_of_services import InstrumentReadingAPI
 from celery import shared_task
 
-
+from . import tasks
+from background_information.models import UnitsOfMeasures
 #from tasks import print_message, print_time, calculate
 
 @login_required()
@@ -38,8 +39,9 @@ class CustomersHome(LoginRequiredMixin, DataMixin, ListView):
         flat_user = self.request.user.flat
         period = (InstrumentReading.objects.filter(flat=flat_user).order_by("-date__year", "-date__month")
                   .values("date__year", "date__month").distinct("date__year", "date__month"))
-
+        tasks.print_message('Test')
         return period
+
 
 class AccrualHome(LoginRequiredMixin, DataMixin, ListView):
     template_name = 'calculation_of_services/index.html'
@@ -50,6 +52,7 @@ class AccrualHome(LoginRequiredMixin, DataMixin, ListView):
         period = AccrualOfServices.objects.all()
 
         return period
+
 
 class AddReadings(LoginRequiredMixin, DataMixin, FormView):
     form_class = AddReadingsForm

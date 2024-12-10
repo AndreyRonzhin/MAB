@@ -7,11 +7,6 @@ from building.models import Flat, MeterDevice, ApartmentBlock, Entrance
 
 import locale
 
-locale.setlocale(
-    category=locale.LC_ALL,
-    locale="Russian"
-)
-
 
 class Company(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, verbose_name='Наименование')

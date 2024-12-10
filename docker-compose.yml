@@ -13,17 +13,17 @@ services:
     ports:
       - "5434:5432"
 
-#  django_mab:
-#    build: .\mab
-#    container_name: django_mab
-#    command: python manage.py runserver 0.0.0.0:8000
-#    volumes:
-#      - .\mab:/usr/src/app/mab
-#    ports:
-#      - "8000:8000"
-#    depends_on:
-#      - pgdb_mab
-#      - redis_mab
+  django_mab:
+    build: .\mab
+    container_name: django_mab
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .\mab:/usr/src/app/mab
+    ports:
+      - "8000:8000"
+    depends_on:
+      - pgdb_mab
+      - redis_mab
 
   redis_mab:
     image: redis:latest
@@ -54,14 +54,15 @@ services:
       - 25672:25672
       - 5672:5672
 
-#  celery_mab:
-#    build: .\mab
-#    command: celery -A mab worker -l INFO --logfile=celery.log
-#    volumes:
-#       - .\mab:/usr/src/app/mab
-#    depends_on:
-#      - django_mab
-#      - redis_mab
+  celery_mab:
+    build: .\mab
+    command: celery -A mab worker -B -l INFO --logfile=celery.log
+    volumes:
+       - .\mab:/usr/src/app/mab
+    depends_on:
+      - django_mab
+      - redis_mab
+      - rabbitmq_mab
 
 volumes:
   pgdbdata: null

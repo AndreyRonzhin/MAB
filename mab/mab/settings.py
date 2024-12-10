@@ -163,7 +163,7 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
 
         "LOCATION": "redis://127.0.0.1:6379",
-        #"LOCATION": "redis://redis_mab:6379",
+        # "LOCATION": "redis://redis_mab:6379",
     }
 }
 
@@ -174,10 +174,12 @@ LOGIN_URL = 'users:login'
 AUTH_USER_MODEL = 'users.User'
 
 # Celery Broker - Redis
-CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@localhost'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-# CELERY_BROKER_URL = 'redis://redis_mab:6379'
+# CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@rabbitmq'
 # CELERY_RESULT_BACKEND = 'redis://redis_mab:6379'
+
+CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@localhost'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+
 
 CELERY_TIMEZONE = "Europe/Ulyanovsk"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
