@@ -5,9 +5,9 @@ from django.conf import settings
 
 import json
 import exchange.service as service
-from background_information.models import UtilityService, UnitsOfMeasures
+from background_information.models import UtilityService, UnitsOfMeasures, PrivatePerson
 from building.models import ApartmentBlock, Entrance, Flat, MeterDevice
-from calculation_of_services.models import PersonalAccount, AccrualOfServices
+from calculation_of_services.models import PersonalAccount, AccrualService, InstrumentReading
 
 
 class Command(BaseCommand):
@@ -30,23 +30,52 @@ class Command(BaseCommand):
         if options['type'] == 'UnitsOfMeasures':
             ed = service.UnitsOfMeasuresED(keys=('code', 'name'), data=data, model=UnitsOfMeasures, update=update)
 
-        if options['type'] == 'PersonalAccount':
+        if options['type'] == 'PrivatePerson':
+            ed = service.PrivatePersonED(keys=('firstname', 'lastname', 'middlename'),
+                                         data=data,
+                                         model=PrivatePerson,
+                                         update=update)
 
-            ed = service.PersonalAccountED(keys=('id_gis', 'flat', ),
+        if options['type'] == 'ApartmentBlock':
+            ed = service.ApartmentBlockED(keys=('number', 'region', 'city', 'street'),
+                                          data=data,
+                                          model=ApartmentBlock,
+                                          update=update)
+
+        if options['type'] == 'Entrance':
+            ed = service.EntranceED(keys=('number', 'apartment_block'),
+                                    data=data,
+                                    model=Entrance,
+                                    update=update)
+
+        if options['type'] == 'Flat':
+            ed = service.FlatED(keys=('number', 'entrance'),
+                                data=data,
+                                model=Flat,
+                                update=update)
+
+        if options['type'] == 'PersonalAccount':
+            ed = service.PersonalAccountED(keys=('id_gis', 'flat',),
                                            data=data,
                                            model=PersonalAccount,
                                            update=update)
 
-        if options['type'] == 'AccrualOfServices':
-            ed = service.AccrualOfServicesED(keys=('date', 'personal_account',),
+        if options['type'] == 'AccrualServices':
+            ed = service.AccrualServicesED(keys=('date', 'personal_account',),
                                              data=data,
-                                             model=AccrualOfServices,
+                                             model=AccrualService,
                                              update=update)
 
         if options['type'] == 'MeterDevice':
             ed = service.MeterDeviceED(keys=('factory_number',),
                                        data=data,
                                        model=MeterDevice,
+                                       update=update)
+
+        if options['type'] == 'InstrumentReading':
+            ed = service.InstrumentReadingED(keys=('date', 'flat', 'meter_device'),
+                                       data=data,
+                                       model=InstrumentReading,
                                        update=update)
 
         if ed:
@@ -77,6 +106,4 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_path(name_file):
-        return f"{settings.BASE_DIR}{sep}{name_file}"
-
-
+        return f"{settings.EXCHANGE_DIR}{sep}{name_file}"

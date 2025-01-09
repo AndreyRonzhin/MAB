@@ -1,9 +1,8 @@
-from dataclasses import fields
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from calculation_of_services.models import PersonalAccount
 from django import forms
+
 
 class LoginUserForms(AuthenticationForm):
     username = forms.CharField(label="Логин",
@@ -21,6 +20,7 @@ class RegisterUserForm(UserCreationForm):
     password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password2 = forms.CharField(label="Повтор пароля", widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     personal_account = forms.CharField(label="Лицевой счет", widget=forms.TextInput(attrs={'class': 'form-input'}))
+
     class Meta:
         model = get_user_model()
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']

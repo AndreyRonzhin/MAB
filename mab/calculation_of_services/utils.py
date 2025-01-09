@@ -1,4 +1,3 @@
-
 class DataMixin:
     title_page = None
     extra_context = {}

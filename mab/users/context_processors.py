@@ -10,6 +10,5 @@ def get_main_menu(request):
     else:
         menu.append({'title': "Главная страница", 'url_name': 'calculation:customers'})
         menu.append({'title': "Добавить показания", 'url_name': 'calculation:addReadings'})
-        menu.append({'title': "Добавить показания new", 'url_name': 'calculation:addReadingsNew'})
 
     return {'mainmenu': menu}

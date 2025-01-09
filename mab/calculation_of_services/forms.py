@@ -7,15 +7,12 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.forms import NumberInput
 from django.utils.deconstruct import deconstructible
 
-from .models import InstrumentReading, AccrualOfServices, SheetOfServices
+from .models import InstrumentReading, AccrualService, SheetService
 from building.models import Flat, MeterDevice, ApartmentBlock, Entrance
 from background_information.models import UtilityService
 
 from datetime import date
 from django import forms
-
-from django.forms.models import BaseInlineFormSet
-from django.forms.models import inlineformset_factory
 
 
 class AddReadingsForm(forms.ModelForm):
@@ -31,22 +28,22 @@ class AddReadingsFormNew(forms.Form):
     date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}), label='Дата показаний')
 
     def __init__(self, *args, **kwargs):
-
-        devices = kwargs.get('param_devices', None)
-        if devices:
-            kwargs.pop('param_devices')
+        instr_read = kwargs.get('instr_read', None)
+        kwargs.pop('instr_read')
 
         super().__init__(*args, **kwargs)
         self.fields['date'].initial = datetime.date.today()
 
-        if devices:
-            for device in devices:
-                name_field = f"value_{device.pk}"
-                self.fields[name_field] = forms.FloatField(label=device.name)
+        if instr_read:
+            for device in instr_read:
+                if device.is_installed:
+                    name_field = f"value_{device.pk_device}"
+                    self.fields[name_field] = forms.FloatField(label=device)
 
 
 class DateSelectorWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
+        months = {month: month for month in range(1, 13)}
         months = {month: month for month in range(1, 13)}
         years = {year: year for year in [2023, 2024, 2025]}
         widgets = [
@@ -66,7 +63,7 @@ class DateSelectorWidget(forms.MultiWidget):
         return date(year=int(year), month=int(month), day=1)  # "{}-{}".format(year, month)
 
 
-class CreateAccruls(forms.Form):
+class CreateAccrul(forms.Form):
     date = forms.DateField(widget=DateSelectorWidget(), label='Период начисления')
     apartment_block = forms.ModelChoiceField(queryset=ApartmentBlock.objects.all())
 
@@ -75,15 +72,13 @@ class CreateAccruls(forms.Form):
         self.fields['date'].initial = datetime.date.today()
 
 
-class EditAccrualsForm(forms.ModelForm):
-
+class EditAccrualForm(forms.ModelForm):
     class Meta:
-        model = AccrualOfServices
+        model = AccrualService
         fields = '__all__'
 
 
-class AccrualOfServicesForm(forms.ModelForm):
-
+class AccrualServiceForm(forms.ModelForm):
     entrance = forms.ModelChoiceField(
         queryset=Entrance.objects.all(),
         widget=autocomplete.ModelSelect2(
@@ -93,6 +88,5 @@ class AccrualOfServicesForm(forms.ModelForm):
     )
 
     class Meta:
-        model = AccrualOfServices
+        model = AccrualService
         fields = '__all__'
-

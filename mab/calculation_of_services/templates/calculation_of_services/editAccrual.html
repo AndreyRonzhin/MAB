@@ -27,7 +27,7 @@
         {% for fs in formset %}
         {{ fs.id }}
         <tr>
-            <td>{{ fs.service }} </td>
+            <td>{{ fs.service }}</td>
             <td>{{ fs.meter_device}}</td>
             <td>{{ fs.rate}}</td>
             <td>{{ fs.instrument_reading_current}}</td>
@@ -37,7 +37,9 @@
         </tr>
         {% endfor %}
     </table>
-     <p><button type="submit">Сохранить</button></p>
+    <p>
+        <button type="submit">Сохранить</button>
+    </p>
 </form>
 
 {% endblock %}

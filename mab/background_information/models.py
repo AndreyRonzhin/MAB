@@ -32,8 +32,7 @@ class UtilityService(models.Model):
         ELECTRICITY_DAY = 4, 'Электроэнергия день'
         ELECTRICITY_NIGHT = 5, 'Электроэнергия ночь'
 
-
-    fullname = models.CharField(max_length=255,  verbose_name="Наименование")
+    fullname = models.CharField(max_length=255, verbose_name="Наименование")
     unit_of_measure = models.ForeignKey("UnitsOfMeasures", on_delete=models.PROTECT, verbose_name="Ед. имерения")
 
     quantify = models.IntegerField(choices=TypesOfQuantity.choices,

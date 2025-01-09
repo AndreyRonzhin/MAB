@@ -4,7 +4,6 @@ from background_information.models import PrivatePerson, UtilityService
 
 
 class BuildingBase(models.Model):
-
     number = models.CharField(max_length=25)
 
     class Meta:
@@ -12,14 +11,13 @@ class BuildingBase(models.Model):
 
 
 class ApartmentBlock(BuildingBase):
-
     region = models.CharField(max_length=225, blank=True)
     city = models.CharField(max_length=225, blank=True)
     street = models.CharField(max_length=225, blank=True)
     address = models.CharField(max_length=1000, blank=True)
 
     def __str__(self):
-        return f"Дом №{self.number}"
+        return f"{self.city}, {self.street}, дом №{self.number}"
 
     class Meta:
         verbose_name = "Многоквартирный дом"
@@ -30,7 +28,7 @@ class Entrance(BuildingBase):
     apartment_block = models.ForeignKey('ApartmentBlock', related_name='entrance', on_delete=models.PROTECT, null=True)
 
     def __str__(self):
-        return f"Подъезд №{self.number} {self.apartment_block}"
+        return f"{self.apartment_block}, подъезд №{self.number} "
 
     class Meta:
         verbose_name = "Подъезд"
@@ -47,15 +45,15 @@ class Flat(BuildingBase):
                               blank=True)
 
     def __str__(self):
-        return f"Квартира №{self.number}"
+        return f"{self.entrance}, квартира №{self.number}"
 
     class Meta:
         verbose_name = "Квартиру"
         verbose_name_plural = "Квартиры"
+        ordering = ['id']
 
 
 class MeterDevice(models.Model):
-
     flat = models.ForeignKey(Flat, related_name='meter_device', on_delete=models.PROTECT, null=True, blank=True)
     type_device = models.IntegerField(choices=UtilityService.TypeOfDevice.choices,
                                       default=UtilityService.TypeOfDevice.DEFAULT,

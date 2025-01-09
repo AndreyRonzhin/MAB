@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .forms import AccrualOfServicesForm
+from .forms import AccrualServiceForm
 from .models import *
 
 
@@ -18,9 +18,11 @@ class RateAdmin(admin.ModelAdmin):
 
 @admin.register(InstrumentReading)
 class InstrumentReadingAdmin(admin.ModelAdmin):
-    pass
-    #fields = ('date', 'service', 'rate')
-    #list_display = ('date', 'flat', 'service', 'meter_device', 'value')
+    list_display = ('date', 'flat', 'meter_device', 'value')
+
+@admin.register(StatisticInstrumentReadings)
+class StatisticInstrumentReadingsAdmin(admin.ModelAdmin):
+    list_display = ('date', 'flat', 'meter_device', 'count')
 
 
 @admin.register(PersonalAccount)
@@ -33,16 +35,22 @@ class ListOfServiceAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(ServiceActions)
+@admin.register(ServiceAction)
 class ServiceActionsAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(AccrualOfServices)
-class AccrualOfServicesAdmin(admin.ModelAdmin):
-    form = AccrualOfServicesForm
+@admin.register(AccrualService)
+class AccrualServicesAdmin(admin.ModelAdmin):
+    form = AccrualServiceForm
+    list_display = ('company', 'date', 'apartment_block', 'entrance', 'flat', 'total', 'total_renewal')
 
 
-@admin.register(SheetOfServices)
+@admin.register(SheetService)
 class SheetOfServicesAdmin(admin.ModelAdmin):
-    list_display = [f.name for f in SheetOfServices._meta.fields]
+    list_display = [f.name for f in SheetService._meta.fields]
+
+
+@admin.register(CompanyApartmentBlock)
+class CompanyApartmentBlockAdmin(admin.ModelAdmin):
+    list_display = ('date', 'apartment_block', 'company', 'is_active')

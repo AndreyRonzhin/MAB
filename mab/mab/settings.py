@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -41,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_extensions',
-    'debug_toolbar',
+    # 'debug_toolbar',
     'background_information.apps.BackgroundInformationConfig',
     'building.apps.BuildingConfig',
     'calculation_of_services.apps.CalculationOfServicesConfig',
@@ -59,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'mab.urls'
@@ -85,7 +84,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mab.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -101,7 +99,6 @@ DATABASES = {
         # 'PORT': 5432,
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -121,7 +118,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -133,13 +129,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    #'static',
+    # 'static',
     BASE_DIR / 'static',
 ]
 
@@ -155,7 +150,10 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-    ]
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 CACHES = {
@@ -180,8 +178,7 @@ AUTH_USER_MODEL = 'users.User'
 CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@localhost'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 
-
 CELERY_TIMEZONE = "Europe/Ulyanovsk"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
-EXCHANGE_DIR = 'mab'
+EXCHANGE_DIR = BASE_DIR / 'primary_data'

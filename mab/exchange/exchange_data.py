@@ -52,7 +52,6 @@ class ExchangeData:
         return result
 
     def get_values_from_json(self, data_json: dict) -> dict:
-
         if self.fields_json_model:
             result = {v: data_json[k] for k, v in self.fields_json_model.items()}
         else:
@@ -68,6 +67,9 @@ class ExchangeData:
 
     def convert_to_datetime(self, model_value: dict):
         for field, value in model_value.items():
+            if isinstance(value, datetime):
+                continue
+
             model_field = getattr(self.model, field, None)
 
             if not isinstance(model_field.field, DateField):
@@ -78,13 +80,12 @@ class ExchangeData:
                     convert_date = datetime.strptime(value, format_date[1])
                     model_value[field] = None if convert_date == self.EMPTY_DATE else convert_date
 
-    # def get_field_model(self, name):
-    #     result = self.fields_json_model.get(name, None)
-    #
-    #     if not result:
-    #         raise ValueError(f'The value {name} was not found in attribute fields_json_model')
-    #
-    #     return result
+    def filter(self, value)->Model:
+        queryset = self.model.objects.filter(**value)[:1]
+        return queryset.get() if queryset else None
+
+    def get_value_filter(self, value)->dict:
+        return {k: value[k] for k in self.keys}
 
 
 class ExchangeDataFieldsForeignKey:
@@ -145,6 +146,10 @@ class ExchangeDataFieldsForeignKey:
 
         return None
 
+class ProcessingField:
+
+    def do_processing(self, data):
+        pass
 
 class SerializerJSONValue:
 
@@ -172,15 +177,14 @@ class SerializerJSON:
 
     def serialize(self):
         for value_json in self.data_json:
+
             value_model = self.exchange_data.get_data(value_json)
-
-            value_filter = {k: value_model[k] for k in self.exchange_data.keys}
-
-            queryset = self.exchange_data.model.objects.filter(**value_filter)[:1]
+            value_filter = self.exchange_data.get_value_filter(value_model)
+            object_model = self.exchange_data.filter(value_filter)
 
             value_data = SerializerJSONValue(json=value_json,
                                              model=value_model,
-                                             object_model=queryset.get() if queryset else None)
+                                             object_model=object_model)
 
             self.add(value_data)
 

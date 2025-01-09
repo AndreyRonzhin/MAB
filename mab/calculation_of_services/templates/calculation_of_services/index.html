@@ -3,19 +3,19 @@
 {% block content %}
 {% if user.is_accountant %}
 <ul>
-	{% for r in accrual_services %}
-	<li>
-		<a href="editaccruals/{{ r.pk }}">Начисление за {{ r.date|date:"F"}} {{r.flat}}</a>
-	</li>
-	{% endfor %}
+    {% for r in accrual_services %}
+    <li>
+        <a href="editaccruals/{{ r.pk }}">Начисление за {{ r.date|date:"F"}} {{r.flat}}</a>
+    </li>
+    {% endfor %}
 </ul>
 {% else %}
 <ul>
-	{% for r in instrument_reading %}
-	<li>
-		<a href="showreadings?year={{ r.date__year }}&month={{ r.date__month }}">Показания за {{ r.date__month }}</a>
-	</li>
-	{% endfor %}
+    {% for r in instrument_reading %}
+    <li>
+        <a href="showreadings?year={{ r.date__year }}&month={{ r.date__month }}">Показания за {{ r.date__month }}</a>
+    </li>
+    {% endfor %}
 </ul>
 {% endif %}
 {% endblock %}

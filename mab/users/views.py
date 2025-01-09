@@ -27,4 +27,3 @@ class RegisterUser(CreateView):
 def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse('users:login'))
-

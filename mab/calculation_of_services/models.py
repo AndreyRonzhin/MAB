@@ -44,7 +44,6 @@ class Rate(models.Model):
 
 
 class InstrumentReading(models.Model):
-    objects = None
     date = models.DateField(verbose_name="Дата ввода")
     flat = models.ForeignKey(Flat,
                              on_delete=models.PROTECT,
@@ -73,14 +72,14 @@ class PersonalAccount(models.Model):
         MAJOR_RENOVATION = 1, 'капитальный ремонт'
 
     number = models.CharField(max_length=25,
-                              null=False,
+                              null=True,
                               blank=False,
                               db_index=True,
                               verbose_name='Лицевой счет')
 
     flat = models.ForeignKey(Flat,
                              on_delete=models.PROTECT,
-                             null=False, blank=False,
+                             null=True, blank=True,
                              related_name='personal_account',
                              verbose_name="Квартира")
 
@@ -138,7 +137,7 @@ class ListOfService(models.Model):
         return self.name
 
 
-class ServiceActions(models.Model):
+class ServiceAction(models.Model):
     date = models.DateField(verbose_name="Период")
     list_service = models.ForeignKey(ListOfService,
                                      on_delete=models.PROTECT,
@@ -163,7 +162,7 @@ class ServiceActions(models.Model):
         return f'{self.list_service} {self.service} {self.date} {self.month} '
 
 
-class AccrualOfServices(models.Model):
+class AccrualService(models.Model):
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
@@ -176,29 +175,33 @@ class AccrualOfServices(models.Model):
                                         null=True,
                                         verbose_name="Дом")
     entrance = models.ForeignKey(Entrance,
-                                 related_name='entrance',
+                                 related_name='accrual_services',
                                  on_delete=models.PROTECT,
                                  null=True,
                                  blank=True,
                                  verbose_name="Подъезд")
     flat = models.ForeignKey(Flat,
-                             related_name='accrual_of_services',
+                             related_name='accrual_services',
                              on_delete=models.PROTECT,
                              null=True,
                              blank=True,
                              verbose_name="Квартира")
     personal_account = models.ForeignKey(PersonalAccount,
-                                         related_name='accrual_of_services',
+                                         related_name='accrual_services',
                                          on_delete=models.PROTECT,
                                          null=True,
                                          blank=True,
                                          verbose_name="Лицевой счет")
-    area_of_apartments = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    list_service = models.ForeignKey(ListOfService,
-                                     on_delete=models.PROTECT,
-                                     null=True,
-                                     blank=True,
-                                     verbose_name="Список услуг")
+    personal_account_renewal = models.ForeignKey(PersonalAccount,
+                                                       related_name='accrual_services_renewal',
+                                                       on_delete=models.PROTECT,
+                                                       null=True,
+                                                       blank=True,
+                                                       verbose_name="Лицевой счет кап. ремонт")
+    area_of_apartments = models.DecimalField(max_digits=10, decimal_places=2, null=False)
+    total = models.DecimalField(max_digits=15, decimal_places=2, null=False)
+    total_renewal = models.DecimalField(max_digits=15, decimal_places=2, null=False)
+
 
     def __str__(self):
         return f"Начисления услуг за {self.date.strftime('%B')} {self.flat} {self.personal_account}"
@@ -209,8 +212,8 @@ class AccrualOfServices(models.Model):
         ordering = ['-date', 'personal_account__number']
 
 
-class SheetOfServices(models.Model):
-    accrual_services = models.ForeignKey(AccrualOfServices,
+class SheetService(models.Model):
+    accrual_services = models.ForeignKey(AccrualService,
                                          on_delete=models.PROTECT,
                                          null=True,
                                          related_name='sheet_services',
@@ -245,3 +248,46 @@ class SheetOfServices(models.Model):
     class Meta:
         verbose_name = "Таблица начисленных услуг"
         verbose_name_plural = "Таблица начисленных услуг"
+
+class StatisticInstrumentReadings(models.Model):
+    date = models.DateField(verbose_name="Дата")
+    flat = models.ForeignKey(Flat,
+                             on_delete=models.PROTECT,
+                             null=False, blank=False,
+                             related_name='statistic_instrument_readings',
+                             verbose_name="Квартира")
+    meter_device = models.ForeignKey(MeterDevice,
+                                     on_delete=models.PROTECT,
+                                     null=False, blank=False,
+                                     related_name='statistic_instrument_readings',
+                                     verbose_name="Прибор учета")
+    count = models.DecimalField(max_digits=20, decimal_places=5, verbose_name="Показания")
+
+    def __str__(self):
+        return f"{self.date.strftime('%B')} {self.flat} ({self.meter_device}) c {self.count}"
+
+    class Meta:
+        unique_together = ("date", "flat", "meter_device")
+        verbose_name = "Статистика показаний прибора учета"
+        verbose_name_plural = "Статистика показаний приборов учета"
+
+
+class CompanyApartmentBlock(models.Model):
+    date = models.DateField(verbose_name="Дата")
+    apartment_block = models.ForeignKey(ApartmentBlock,
+                                        on_delete=models.PROTECT,
+                                        related_name='company_apartment_block',
+                                        verbose_name="Многоквартирный дом")
+    company = models.ForeignKey(Company,
+                                on_delete=models.PROTECT,
+                                related_name='company_apartment_block',
+                                verbose_name="Организация")
+    is_active = models.BooleanField(verbose_name="Сотрудничают ", default=False)
+
+    class Meta:
+        unique_together = ("date", "apartment_block", "company")
+        verbose_name = "Многоквартирный дом управляющей компании"
+        verbose_name_plural = "Многоквартирные дома управляющих компаний"
+
+    def __str__(self):
+        return f'{self.date} {self.company}-{self.apartment_block} {'сотрудничают' if self.is_active else 'не сотрудничают'}'

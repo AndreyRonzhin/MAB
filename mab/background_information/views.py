@@ -7,7 +7,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-
 from .models import PrivatePerson
 from .serializers import PrivatePersonSerializer
 
@@ -18,7 +17,6 @@ class PrivatePersonViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def find(self, request):
-
         name_params = ('firstname', 'lastname', 'middlename')
 
         filter_name = {}

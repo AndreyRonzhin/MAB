@@ -4,5 +4,4 @@ from rest_framework import routers
 
 app_name = "background_information"
 
-
 urlpatterns = []
