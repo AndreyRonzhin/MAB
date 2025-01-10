@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i5m8=m-7coa7w(ysu^jcytw2e2e47%ur4x@3w@250)#chtz$!@'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -90,11 +94,11 @@ WSGI_APPLICATION = 'mab.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'MAB',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',
-        'PORT': 5434,
+        'NAME': os.getenv('DJANGO_DATABASE_NAME'),
+        'USER': os.getenv('DJANGO_DATABASE_USER'),
+        'PASSWORD': os.getenv('DJANGO_DATABASE_PASSWORD'),
+        'HOST': os.getenv('DJANGO_DATABASE_HOST'),
+        'PORT': os.getenv('DJANGO_DATABASE_PORT'),
         # 'HOST': 'pgdb_mab',
         # 'PORT': 5432,
     }
@@ -160,7 +164,7 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
 
-        "LOCATION": "redis://127.0.0.1:6379",
+        "LOCATION": os.getenv('DJANGO_CACHES_LOCATION'),
         # "LOCATION": "redis://redis_mab:6379",
     }
 }
@@ -175,8 +179,8 @@ AUTH_USER_MODEL = 'users.User'
 # CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@rabbitmq'
 # CELERY_RESULT_BACKEND = 'redis://redis_mab:6379'
 
-CELERY_BROKER_URL = 'amqp://rmuser:rmpassword@localhost'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = os.getenv('DJANGO_CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND = os.getenv('DJANGO_CELERY_RESULT_BACKEND')
 
 CELERY_TIMEZONE = "Europe/Ulyanovsk"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
