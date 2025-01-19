@@ -1,0 +1,71 @@
+version: '3'
+
+services:
+  pgdb_mab:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+    container_name: pgdb_mab
+#    volumes:
+#      - .\pgdbdata:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+#  django_mab:
+#    build: .\mab
+#    container_name: django_mab
+#    command: python manage.py runserver 0.0.0.0:8000
+#    volumes:
+#      - .\mab:/usr/src/app/mab
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - pgdb_mab
+#      - redis_mab
+
+  redis_mab:
+    image: redis:latest
+    #restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - .:/root/redis
+      - .:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+    depends_on:
+      - pgdb_mab
+
+  rabbitmq_mab:
+    image: rabbitmq:3.10.7-management
+    hostname: rabbitmq
+    #restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmuser
+      - RABBITMQ_DEFAULT_PASS=rmpassword
+    volumes:
+      - .:/rabbitmq:/var/lib/rabbitmq
+    ports:
+      - 15672:15672
+      - 25672:25672
+      - 5672:5672
+
+#  celery_mab:
+#    build: .\mab
+#    command: celery -A mab worker -B -l INFO --logfile=celery.log
+#    volumes:
+#       - .\mab:/usr/src/app/mab
+#    depends_on:
+#      - django_mab
+#      - redis_mab
+#      - rabbitmq_mab
+
+volumes:
+  pgdbdata: null
+
+
+
