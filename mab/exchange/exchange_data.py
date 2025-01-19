@@ -45,7 +45,7 @@ class ExchangeData:
         result |= self.get_values_from_json(data)
         result |= self.get_processing_values(data)
         result |= self.get_default_values()
-        result |= {k: v.find_by_keys(data) for k, v in self.fields_foreign_key.items()}
+        result |= self.get_fields_foreign_key(data)
 
         self.convert_to_datetime(result)
 
@@ -64,6 +64,9 @@ class ExchangeData:
 
     def get_processing_values(self, data) -> dict:
         return {k: v.do_processing(data) for k, v in self.fields_processing.items()}
+
+    def get_fields_foreign_key(self, data):
+        return {k: v.find_by_keys(data) for k, v in self.fields_foreign_key.items()}
 
     def convert_to_datetime(self, model_value: dict):
         for field, value in model_value.items():
