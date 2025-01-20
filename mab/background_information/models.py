@@ -1,9 +1,12 @@
 from django.db import models
-from django.db.models import signals
-from django.dispatch import receiver
 
 
-class PrivatePerson(models.Model):
+class BaseModel(models.Model):
+    objects = models.Manager()
+    class Meta:
+        abstract = True
+
+class PrivatePerson(BaseModel):
     firstname = models.CharField(max_length=255, verbose_name="Фамилия")
     lastname = models.CharField(max_length=255, verbose_name="Имя")
     middlename = models.CharField(max_length=255, blank=True, verbose_name="Отчество")
@@ -16,7 +19,7 @@ class PrivatePerson(models.Model):
         verbose_name_plural = "Физические лица"
 
 
-class UtilityService(models.Model):
+class UtilityService(BaseModel):
     class TypesOfQuantity(models.IntegerChoices):
         DEFAULT = 0, 'по умолчанию 1'
         SQUARE = 1, 'полщадь квартиры'
@@ -53,7 +56,7 @@ class UtilityService(models.Model):
         verbose_name_plural = "Коммунальные услуги"
 
 
-class UnitsOfMeasures(models.Model):
+class UnitsOfMeasures(BaseModel):
     name = models.CharField(max_length=25, blank=True, verbose_name="Наименование")
     fullname = models.CharField(max_length=255, blank=True, verbose_name="Полное наименование")
     code = models.CharField(max_length=4, blank=True, verbose_name="Код ед. измерения")

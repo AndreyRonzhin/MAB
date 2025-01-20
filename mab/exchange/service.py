@@ -1,7 +1,8 @@
+import re
+from typing import Any
 from django.db.models import Model
 from datetime import datetime
-import re
-from .exchange_data import ExchangeData, ExchangeDataFieldsForeignKey, ProcessingField
+from .exchange_data import ExchangeData, ExchangeDataFieldForeignKey, ProcessingField
 
 
 class UnitsOfMeasuresED(ExchangeData):
@@ -21,7 +22,7 @@ class UtilityServiceED(ExchangeData):
                                   'type_communal_resources': 'type_device',
                                   'additionally': 'additionally'}
 
-        unit_of_measure = ExchangeDataFieldsForeignKey('unit_of_measure',
+        unit_of_measure = ExchangeDataFieldForeignKey('unit_of_measure',
                                                        {'unit_code': 'code', 'unit_name': 'name'},
                                                        self.model)
         self.fields_foreign_key = {'unit_of_measure': unit_of_measure}
@@ -47,7 +48,7 @@ class EntranceED(ExchangeData):
                            'apartment_block_city': 'city',
                            'apartment_block_street': 'street'}
 
-        apartment_block = ExchangeDataFieldsForeignKey('apartment_block', keys_json_model, self.model)
+        apartment_block = ExchangeDataFieldForeignKey('apartment_block', keys_json_model, self.model)
         self.fields_foreign_key = {'apartment_block': apartment_block}
 
 
@@ -58,7 +59,7 @@ class FlatED(ExchangeData):
         self.fields_json_model = {'number': 'number',
                                   'area_of_apartments': 'area_of_apartments'}
 
-        entrance = EntranceFieldsForeignKey('entrance',
+        entrance = EntranceFieldForeignKey('entrance',
                                             {'entrance_number': 'number'},
                                             self.model)
 
@@ -66,14 +67,14 @@ class FlatED(ExchangeData):
                            'owner_lastname': 'lastname',
                            'owner_middlename': 'middlename'}
 
-        owner = ExchangeDataFieldsForeignKey('owner', keys_json_model, self.model)
+        owner = ExchangeDataFieldForeignKey('owner', keys_json_model, self.model)
         self.fields_foreign_key = {'owner': owner, 'entrance': entrance}
 
 
-class FlatFieldsForeignKey(ExchangeDataFieldsForeignKey):
+class FlatFieldForeignKey(ExchangeDataFieldForeignKey):
 
-    def find_by_keys(self, data) -> [Model, None]:
-        entrance_foreign_key = EntranceFieldsForeignKey('entrance',
+    def find_by_keys(self, data:dict[str, Any]) -> Model | None:
+        entrance_foreign_key = EntranceFieldForeignKey('entrance',
                                                         {'entrance_number': 'number'},
                                                         self.model)
 
@@ -85,10 +86,10 @@ class FlatFieldsForeignKey(ExchangeDataFieldsForeignKey):
         return self.find_obj_model(value_filter)
 
 
-class EntranceFieldsForeignKey(ExchangeDataFieldsForeignKey):
+class EntranceFieldForeignKey(ExchangeDataFieldForeignKey):
 
-    def find_by_keys(self, data) -> [Model, None]:
-        apartment_block_foreign_key = ExchangeDataFieldsForeignKey('apartment_block',
+    def find_by_keys(self, data) -> Model | None:
+        apartment_block_foreign_key = ExchangeDataFieldForeignKey('apartment_block',
                                                                    {'apartment_block_number': 'number',
                                                                     'apartment_block_region': 'region',
                                                                     'apartment_block_city': 'city',
@@ -103,10 +104,10 @@ class EntranceFieldsForeignKey(ExchangeDataFieldsForeignKey):
         return self.find_obj_model(value_filter)
 
 
-class PersonalAccountFieldsForeignKey(ExchangeDataFieldsForeignKey):
+class PersonalAccountFieldForeignKey(ExchangeDataFieldForeignKey):
 
-    def find_by_keys(self, data) -> [Model, None]:
-        flat_foreign_key = FlatFieldsForeignKey('flat',
+    def find_by_keys(self, data: dict[str, Any]) -> Model | None:
+        flat_foreign_key = FlatFieldForeignKey('flat',
                                                 {'flat_number': 'number'},
                                                 self.model)
 
@@ -117,10 +118,10 @@ class PersonalAccountFieldsForeignKey(ExchangeDataFieldsForeignKey):
 
         return self.find_obj_model(value_filter)
 
-class MeterDeviceFieldsForeignKey(ExchangeDataFieldsForeignKey):
+class MeterDeviceFieldForeignKey(ExchangeDataFieldForeignKey):
 
     def find_by_keys(self, data) -> [Model, None]:
-        flat_foreign_key = FlatFieldsForeignKey('flat',
+        flat_foreign_key = FlatFieldForeignKey('flat',
                                                 {'flat_number': 'number'},
                                                 self.model)
 
@@ -144,11 +145,11 @@ class PersonalAccountED(ExchangeData):
                                   'personal_account_id_gis': 'id_gis',
                                   'quantify': 'quantify'}
 
-        flat = FlatFieldsForeignKey('flat',
+        flat = FlatFieldForeignKey('flat',
                                     {'flat_number': 'number'},
                                     self.model)
 
-        payer = ExchangeDataFieldsForeignKey('payer',
+        payer = ExchangeDataFieldForeignKey('payer',
                                              {'payer_firstname': 'firstname',
                                               'payer_lastname': 'lastname',
                                               'payer_middlename': 'middlename'},
@@ -181,23 +182,23 @@ class AccrualServicesED(ExchangeData):
                                   'total': 'total',
                                   'total_renewal': 'total_renewal'}
 
-        company = ExchangeDataFieldsForeignKey('company',
+        company = ExchangeDataFieldForeignKey('company',
                                                {'company_inn': 'inn'},
                                                self.model)
-        apartment_block = ExchangeDataFieldsForeignKey('apartment_block',
+        apartment_block = ExchangeDataFieldForeignKey('apartment_block',
                                                        {'apartment_block_number': 'number'},
                                                        self.model)
-        entrance = EntranceFieldsForeignKey('entrance',
+        entrance = EntranceFieldForeignKey('entrance',
                                             {'entrance_number': 'number'},
                                             self.model)
-        flat = FlatFieldsForeignKey('flat',
+        flat = FlatFieldForeignKey('flat',
                                     {'flat_number': 'number'},
                                     self.model)
-        personal_account = PersonalAccountFieldsForeignKey('personal_account',
+        personal_account = PersonalAccountFieldForeignKey('personal_account',
                                                            {'personal_account_id_gis': 'id_gis'},
                                                            self.model)
 
-        personal_account_renewal = PersonalAccountFieldsForeignKey('personal_account_renewal',
+        personal_account_renewal = PersonalAccountFieldForeignKey('personal_account_renewal',
                                                            {'personal_account_renewal_id_gis': 'id_gis'},
                                                            self.model)
 
@@ -264,7 +265,7 @@ class MeterDeviceED(ExchangeData):
                                   'commissioning_date': 'commissioning_date',
                                   'decommissioning_date': 'decommissioning_date'}
 
-        flat = FlatFieldsForeignKey('flat',
+        flat = FlatFieldForeignKey('flat',
                                     {'flat_number': 'number'},
                                     self.model)
 
@@ -286,11 +287,11 @@ class InstrumentReadingED(ExchangeData):
         self.fields_json_model = {'date': 'date',
                                   'value_t1': "value"}
 
-        flat = FlatFieldsForeignKey('flat',
+        flat = FlatFieldForeignKey('flat',
                                     {'flat_number': 'number'},
                                     self.model)
 
-        meter_device = MeterDeviceFieldsForeignKey('meter_device',
+        meter_device = MeterDeviceFieldForeignKey('meter_device',
                                                    {},
                                                    self.model)
 

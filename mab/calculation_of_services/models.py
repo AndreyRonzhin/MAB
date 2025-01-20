@@ -1,14 +1,14 @@
 from django.db import models
 
-from datetime import datetime
-
 from background_information.models import UtilityService, PrivatePerson
 from building.models import Flat, MeterDevice, ApartmentBlock, Entrance
 
-import locale
+class BaseModel(models.Model):
+    objects = models.Manager()
+    class Meta:
+        abstract = True
 
-
-class Company(models.Model):
+class Company(BaseModel):
     name = models.CharField(max_length=255, null=False, blank=False, verbose_name='Наименование')
     inn = models.CharField(max_length=12, null=True, blank=True, verbose_name='ИНН')
 
@@ -20,7 +20,7 @@ class Company(models.Model):
         return self.name
 
 
-class Rate(models.Model):
+class Rate(BaseModel):
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
@@ -43,7 +43,8 @@ class Rate(models.Model):
         verbose_name_plural = "Тарифы"
 
 
-class InstrumentReading(models.Model):
+class InstrumentReading(BaseModel):
+    objects = models.Manager()
     date = models.DateField(verbose_name="Дата ввода")
     flat = models.ForeignKey(Flat,
                              on_delete=models.PROTECT,
@@ -66,11 +67,12 @@ class InstrumentReading(models.Model):
         verbose_name_plural = "Показания приборов учета"
 
 
-class PersonalAccount(models.Model):
+class PersonalAccount(BaseModel):
     class TypeOfPersonalAccount(models.IntegerChoices):
         UTILITIES = 0, 'коммунальные услуги'
         MAJOR_RENOVATION = 1, 'капитальный ремонт'
 
+    objects = models.Manager()
     number = models.CharField(max_length=25,
                               null=True,
                               blank=False,
@@ -120,7 +122,8 @@ class PersonalAccount(models.Model):
         return f'Лицевой счет №{self.number}{closed}'
 
 
-class ListOfService(models.Model):
+class ListOfService(BaseModel):
+    objects = models.Manager()
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
@@ -137,7 +140,7 @@ class ListOfService(models.Model):
         return self.name
 
 
-class ServiceAction(models.Model):
+class ServiceAction(BaseModel):
     date = models.DateField(verbose_name="Период")
     list_service = models.ForeignKey(ListOfService,
                                      on_delete=models.PROTECT,
@@ -162,7 +165,7 @@ class ServiceAction(models.Model):
         return f'{self.list_service} {self.service} {self.date} {self.month} '
 
 
-class AccrualService(models.Model):
+class AccrualService(BaseModel):
     company = models.ForeignKey(Company,
                                 on_delete=models.PROTECT,
                                 null=True, blank=True,
@@ -212,7 +215,7 @@ class AccrualService(models.Model):
         ordering = ['-date', 'personal_account__number']
 
 
-class SheetService(models.Model):
+class SheetService(BaseModel):
     accrual_services = models.ForeignKey(AccrualService,
                                          on_delete=models.PROTECT,
                                          null=True,
@@ -249,7 +252,7 @@ class SheetService(models.Model):
         verbose_name = "Таблица начисленных услуг"
         verbose_name_plural = "Таблица начисленных услуг"
 
-class StatisticInstrumentReadings(models.Model):
+class StatisticInstrumentReadings(BaseModel):
     date = models.DateField(verbose_name="Дата")
     flat = models.ForeignKey(Flat,
                              on_delete=models.PROTECT,
@@ -272,7 +275,8 @@ class StatisticInstrumentReadings(models.Model):
         verbose_name_plural = "Статистика показаний приборов учета"
 
 
-class CompanyApartmentBlock(models.Model):
+class CompanyApartmentBlock(BaseModel):
+    objects = models.Manager()
     date = models.DateField(verbose_name="Дата")
     apartment_block = models.ForeignKey(ApartmentBlock,
                                         on_delete=models.PROTECT,

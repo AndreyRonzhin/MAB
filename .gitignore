@@ -4,3 +4,4 @@
 /mab/calculation_of_services/migrations/
 /mab/exchange/migrations/
 /mab/mab/.env
+.log

@@ -5,10 +5,14 @@ from background_information.models import PrivatePerson, UtilityService
 
 class BuildingBase(models.Model):
     number = models.CharField(max_length=25)
-
+    objects = models.Manager()
     class Meta:
         abstract = True
 
+class BaseModel(models.Model):
+    objects = models.Manager()
+    class Meta:
+        abstract = True
 
 class ApartmentBlock(BuildingBase):
     region = models.CharField(max_length=225, blank=True)
@@ -53,7 +57,7 @@ class Flat(BuildingBase):
         ordering = ['id']
 
 
-class MeterDevice(models.Model):
+class MeterDevice(BaseModel):
     flat = models.ForeignKey(Flat, related_name='meter_device', on_delete=models.PROTECT, null=True, blank=True)
     type_device = models.IntegerField(choices=UtilityService.TypeOfDevice.choices,
                                       default=UtilityService.TypeOfDevice.DEFAULT,

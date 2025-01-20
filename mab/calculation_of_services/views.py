@@ -6,7 +6,7 @@ from django.forms import inlineformset_factory
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
-from rest_framework.views import APIView
+
 
 from building.models import Entrance
 from .forms import AddReadingsFormNew, CreateAccrul, EditAccrualForm
@@ -48,7 +48,6 @@ class AccrualHome(LoginRequiredMixin, DataMixin, ListView):
 
 @login_required()
 def add_readings(request):
-    user_id = request.user.id
     session_key = request.session.session_key
     if request.method == 'POST':
         instr_read = cache.get(f'instr_read_{session_key}')

@@ -1,6 +1,7 @@
-from django.db.models import Model, DateField
-from datetime import datetime
 import re
+from django.db.models import Model, DateField
+from typing import Any
+from datetime import datetime
 
 
 class ExchangeData:
@@ -10,22 +11,21 @@ class ExchangeData:
     EMPTY_DATE = datetime(1, 1, 1, 0, 0, 0)
 
     def __init__(self, **kwargs):
-        self.keys = kwargs.get('keys', None)
-        self.data_to_download = kwargs.get('data', None)
-        self.model = kwargs.get('model', None)
-        self.update = kwargs.get('update', False)
-        self.fields_json_model = {}
-        self.fields_foreign_key = {}
-        self.fields_default = {}
-        self.fields_processing = {}
-        self.fields_exclude = []
+        self.keys: list[str] = kwargs.get('keys')
+        self.data_to_download: list[dict[str, str | int | float]] = kwargs.get('data')
+        self.model: Model  = kwargs.get('model')
+        self.update: bool = kwargs.get('update', False)
+        self.fields_json_model: dict[str, str] = {}
+        self.fields_foreign_key: dict[str, ExchangeDataFieldForeignKey]= {}
+        self.fields_default: dict[str, Any] = {}
+        self.fields_processing: dict[str, ProcessingField] = {}
+        self.fields_exclude: list[str] = []
 
     def create(self):
         serialize = SerializerJSON(self.data_to_download, self)
         serialize.serialize()
 
         for data in serialize:
-            pass
             if not self.update and data.object:
                 continue
             elif self.update and data.object:
@@ -36,7 +36,7 @@ class ExchangeData:
 
                 model.save()
             else:
-                model = self.model(**data.model)
+                model = self.model.objects.create(**data.model)
                 model.save()
 
     def get_data(self, data: dict) -> dict:
@@ -91,7 +91,7 @@ class ExchangeData:
         return {k: value[k] for k in self.keys}
 
 
-class ExchangeDataFieldsForeignKey:
+class ExchangeDataFieldForeignKey:
     __cache_value = {}
 
     def __init__(self, name: str, keys: [tuple, dict], model: Model):
