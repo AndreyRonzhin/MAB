@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from datetime import date
 from django.db import transaction
 from django.db.models import Max, QuerySet
 
@@ -8,13 +11,13 @@ from calculation_of_services.models import InstrumentReading, CompanyApartmentBl
 class DataMeterDevice:
 
     @staticmethod
-    def get_devices(flat: Flat)->QuerySet:
+    def get_devices(flat: Flat) -> QuerySet:
         return MeterDevice.objects.filter(flat=flat, is_installed=True).order_by('type_device')
 
 class DataInstrumentReading:
 
     @staticmethod
-    def get_last_instrument_readings(devices: list[MeterDevice])->QuerySet:
+    def get_last_instrument_readings(devices: list[MeterDevice]) -> QuerySet:
 
         qs_last_date = (InstrumentReading.objects.filter(meter_device__in=devices).values('meter_device')
                         .annotate(date=Max('date')).values('date'))
@@ -25,11 +28,11 @@ class DataInstrumentReading:
         return qs_last_values
 
     @staticmethod
-    def save(date, flat:Flat, devices):
+    def save(date_instr_read:date, flat:Flat, devices:OperationInstrumentReading) -> bool:
         try:
             with transaction.atomic():
                 for device in devices:
-                    instr_read = {'date': date,
+                    instr_read = {'date': date_instr_read,
                                   'flat': flat,
                                   'meter_device': device.model,
                                   'value': device.current_values
@@ -46,14 +49,14 @@ class DataInstrumentReading:
 class OperationMeterDevice:
 
     def __init__(self, model:MeterDevice):
-        self.model:MeterDevice = model
-        self.pk_device:int = model.pk
-        self.date = None
-        self.type_device = model.type_device
-        self.factory_number:str = model.factory_number
-        self.is_installed:bool = model.is_installed
-        self.current_values:float = 0
-        self.previous_values:float = 0
+        self.model: MeterDevice = model
+        self.pk_device: int = model.pk
+        self.date: date | None = None
+        self.type_device: int = model.type_device
+        self.factory_number: str = model.factory_number
+        self.is_installed: bool = model.is_installed
+        self.current_values: float = 0
+        self.previous_values: float = 0
 
     @property
     def count(self):
@@ -70,11 +73,12 @@ class OperationMeterDevice:
 class OperationInstrumentReading:
 
     def __init__(self, flat: Flat):
-        self.__date = None
         self.__flat = flat
-        self.__devices = {}
-        self.__index_key = 0
-        self.__list_key = []
+
+        self.__date: date | None = None
+        self.__devices: dict[int, OperationMeterDevice] = {}
+        self.__index_key: int = 0
+        self.__list_key: list[int] = []
 
         self.fill_devices()
         self.fill_values_device()
@@ -110,18 +114,18 @@ class OperationInstrumentReading:
         return [v.model for v in self.__devices.values()]
 
     @property
-    def date(self):
+    def date(self) -> date | None:
         return self.__date
 
     @date.setter
-    def date(self, date):
-        self.__date = date
+    def date(self, date_instr_read: date):
+        self.__date = date_instr_read
 
     @property
-    def flat(self):
+    def flat(self) -> Flat:
         return self.__flat
 
-    def get_device(self, device_number: int) -> MeterDevice | None:
+    def get_device(self, device_number: int) -> OperationMeterDevice | None:
         return self.__devices.get(device_number, None)
 
     def set_current_values(self, device_number: int, value: float):
@@ -129,18 +133,21 @@ class OperationInstrumentReading:
         if device:
             device.current_values = value
         else:
-            raise 'Прибор учета не найден по ключу'
+            raise Exception('Прибор учета не найден по ключу')
 
 
-    def save_readings(self):
-        return DataInstrumentReading.save(self.__date, self.__flat, self)
+    def save_readings(self) -> bool:
+        if self.__date:
+            return DataInstrumentReading.save(self.__date, self.__flat, self)
+        else:
+            return False
 
 
     def valid_instrument_reading(self) -> list:
         result = []
 
         for device in self.__devices.values():
-            if device.date and device.date >= self.date:
+            if (device.date and self.date) and device.date >= self.date:
                 error = (device.pk_device, f'Дата {self.date} меньше даты последних показаний {device.date}')
                 result.append(error)
                 continue
@@ -155,23 +162,23 @@ class OperationInstrumentReading:
 class DataCompanyApartmentBlock:
 
     @staticmethod
-    def get_active_apartment_block(company_id:int)->QuerySet:
+    def get_active_apartment_block(company_id: int) -> QuerySet:
         return (CompanyApartmentBlock.objects.filter(company=company_id, is_active=True)
                 .values('apartment_block').annotate(date=Max('date')))
 
     @staticmethod
-    def get_not_active_apartment_block(company_id:int) -> QuerySet:
+    def get_not_active_apartment_block(company_id: int) -> QuerySet:
         return (CompanyApartmentBlock.objects.filter(company=company_id, is_active=False)
                 .values('apartment_block').annotate(date=Max('date')))
 
 
 class OperationCompanyApartmentBlock:
 
-    def __init__(self, company_id:int):
-        self.__active_apartment_block = {}
+    def __init__(self, company_id: int):
+        self.__active_apartment_block: dict[int, date] = {}
         self.__company_id = company_id
 
-    def list_apartment_block(self)->dict:
+    def list_apartment_block(self) -> dict[int, date]:
         qs_active_apartment_block = DataCompanyApartmentBlock.get_active_apartment_block(self.__company_id)
 
         for active_apartment in qs_active_apartment_block:
