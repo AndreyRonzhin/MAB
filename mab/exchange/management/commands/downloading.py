@@ -25,10 +25,16 @@ class Command(BaseCommand):
         ed = None
 
         if options['type'] == 'UtilityService':
-            ed = service.UtilityServiceED(keys=('fullname',), data=data, model=UtilityService, update=update)
+            ed = service.UtilityServiceED(keys=('fullname',),
+                                          data=data,
+                                          model=UtilityService,
+                                          update=update)
 
         if options['type'] == 'UnitsOfMeasures':
-            ed = service.UnitsOfMeasuresED(keys=('code', 'name'), data=data, model=UnitsOfMeasures, update=update)
+            ed = service.UnitsOfMeasuresED(keys=('code', 'name'),
+                                           data=data,
+                                           model=UnitsOfMeasures,
+                                           update=update)
 
         if options['type'] == 'PrivatePerson':
             ed = service.PrivatePersonED(keys=('firstname', 'lastname', 'middlename'),

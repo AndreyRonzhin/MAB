@@ -15,8 +15,12 @@ class PrivatePersonED(ExchangeData):
 
 class UtilityServiceED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
         self.fields_json_model = {'name': 'fullname',
                                   'method_calculating': 'quantify',
                                   'type_communal_resources': 'type_device',
@@ -30,16 +34,24 @@ class UtilityServiceED(ExchangeData):
 
 class ApartmentBlockED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
 
         self.fields_exclude.append('name')
 
 
 class EntranceED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
 
         self.fields_json_model = {'number': 'number'}
 
@@ -54,8 +66,12 @@ class EntranceED(ExchangeData):
 
 class FlatED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
         self.fields_json_model = {'number': 'number',
                                   'area_of_apartments': 'area_of_apartments'}
 
@@ -81,7 +97,10 @@ class FlatFieldForeignKey(ExchangeDataFieldForeignKey):
         entrance = entrance_foreign_key.find_by_keys(data)
 
         value_filter = {'entrance': entrance}
-        value_filter |= {v: data[k] for k, v in self.keys.items()}
+        if isinstance(self.keys, dict):
+            value_filter |= {v: data[k] for k, v in self.keys.items()}
+        else:
+            value_filter |= {k: data[k] for k in self.keys}
 
         return self.find_obj_model(value_filter)
 
@@ -99,7 +118,10 @@ class EntranceFieldForeignKey(ExchangeDataFieldForeignKey):
         apartment_block = apartment_block_foreign_key.find_by_keys(data)
 
         value_filter = {'apartment_block': apartment_block}
-        value_filter |= {v: data[k] for k, v in self.keys.items()}
+        if isinstance(self.keys, dict):
+            value_filter |= {v: data[k] for k, v in self.keys.items()}
+        else:
+            value_filter |= {k: data[k] for k in self.keys}
 
         return self.find_obj_model(value_filter)
 
@@ -114,13 +136,16 @@ class PersonalAccountFieldForeignKey(ExchangeDataFieldForeignKey):
         flat = flat_foreign_key.find_by_keys(data)
 
         value_filter = {'flat': flat}
-        value_filter |= {v: data[k] for k, v in self.keys.items()}
+        if isinstance(self.keys, dict):
+            value_filter |= {v: data[k] for k, v in self.keys.items()}
+        else:
+            value_filter |= {k: data[k] for k in self.keys}
 
         return self.find_obj_model(value_filter)
 
 class MeterDeviceFieldForeignKey(ExchangeDataFieldForeignKey):
 
-    def find_by_keys(self, data) -> [Model, None]:
+    def find_by_keys(self, data) -> Model| None:
         flat_foreign_key = FlatFieldForeignKey('flat',
                                                 {'flat_number': 'number'},
                                                 self.model)
@@ -136,8 +161,12 @@ class MeterDeviceFieldForeignKey(ExchangeDataFieldForeignKey):
 
 class PersonalAccountED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
 
         self.fields_json_model = {'number': 'number',
                                   'closing_date': 'closing_date',
@@ -174,8 +203,12 @@ class DateStartMonth(ProcessingField):
 
 class AccrualServicesED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
 
         self.fields_json_model = {'date': 'date',
                                   'area_of_apartments': 'area_of_apartments',
@@ -251,8 +284,12 @@ class TypeDevice(ProcessingField):
 
 class MeterDeviceED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
 
         self.fields_json_model = {'brand': 'brand',
                                   'type': "type",
@@ -281,8 +318,12 @@ class MeterDeviceED(ExchangeData):
 
 class InstrumentReadingED(ExchangeData):
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        super().__init__(keys, data, model, update)
 
         self.fields_json_model = {'date': 'date',
                                   'value_t1': "value"}

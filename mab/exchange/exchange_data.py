@@ -1,20 +1,37 @@
 import re
-from django.db.models import Model, DateField
+from django.db.models import Model, DateField, Field
 from typing import Any
 from datetime import datetime
 
 
 class ExchangeData:
+    """
+
+    """
     FORMATE_DATE = ((r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z', '%Y-%m-%dT%H:%M:%SZ'),
                     (r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}', '%Y-%m-%dT%H:%M:%S'),)
 
     EMPTY_DATE = datetime(1, 1, 1, 0, 0, 0)
 
-    def __init__(self, **kwargs):
-        self.keys: list[str] = kwargs.get('keys')
-        self.data_to_download: list[dict[str, str | int | float]] = kwargs.get('data')
-        self.model: Model  = kwargs.get('model')
-        self.update: bool = kwargs.get('update', False)
+    def __init__(self,
+                 keys: tuple[str, ...],
+                 data: list[dict[str, Any]],
+                 model: Model,
+                 update: bool = False):
+        """Create a new instance of ExchangeData
+
+        :param list keys:
+        :param list data:
+        :param Model model:
+        :param bool update:
+
+
+        """
+        self.keys = keys
+        self.data_to_download = data
+        self.model = model
+        self.update = update
+
         self.fields_json_model: dict[str, str] = {}
         self.fields_foreign_key: dict[str, ExchangeDataFieldForeignKey]= {}
         self.fields_default: dict[str, Any] = {}
@@ -39,8 +56,8 @@ class ExchangeData:
                 model = self.model.objects.create(**data.model)
                 model.save()
 
-    def get_data(self, data: dict) -> dict:
-        result = {}
+    def get_data(self, data: dict[str, Any]) -> dict[str, Any]:
+        result:dict[str, Any] = {}
 
         result |= self.get_values_from_json(data)
         result |= self.get_processing_values(data)
@@ -75,7 +92,7 @@ class ExchangeData:
 
             model_field = getattr(self.model, field, None)
 
-            if not isinstance(model_field.field, DateField):
+            if model_field and not isinstance(model_field.field, DateField):
                 continue
 
             for format_date in self.FORMATE_DATE:
@@ -94,7 +111,10 @@ class ExchangeData:
 class ExchangeDataFieldForeignKey:
     __cache_value = {}
 
-    def __init__(self, name: str, keys: [tuple, dict], model: Model):
+    def __init__(self,
+                 name: str,
+                 keys: dict[str, str] | tuple[str, ...],
+                 model: Model):
         self.name = name
         self.model = self.__get_model_by_field(name, model)
         self.keys = keys
@@ -108,7 +128,7 @@ class ExchangeDataFieldForeignKey:
 
         return model_field.field.related_model
 
-    def find_by_keys(self, data) -> [Model, None]:
+    def find_by_keys(self, data: dict[str, Any]) -> Model | None:
         if isinstance(self.keys, dict):
             value_filter = {v: data[k] for k, v in self.keys.items()}
         else:
@@ -116,7 +136,7 @@ class ExchangeDataFieldForeignKey:
 
         return self.find_obj_model(value_filter)
 
-    def find_obj_model(self, value_filter):
+    def find_obj_model(self, value_filter: dict[str, Any]) -> Model:
         cache_value = self.get_cache_value(self.name, tuple(value_filter.values()))
 
         if cache_value:
@@ -131,7 +151,7 @@ class ExchangeDataFieldForeignKey:
         return obj_model
 
     @classmethod
-    def add_cache_value(cls, name, search_values: tuple[str | int], value: Model):
+    def add_cache_value(cls, name, search_values: tuple[str, ...], value: Model):
         if value:
             cache_value_name = cls.__cache_value.get(name, None)
             if cache_value_name:
@@ -140,7 +160,7 @@ class ExchangeDataFieldForeignKey:
                 cls.__cache_value = {name: {hash(search_values): value}}
 
     @classmethod
-    def get_cache_value(cls, name, search_values: tuple[str | int]):
+    def get_cache_value(cls, name, search_values: tuple[str, ...]) ->Model|None:
         name_value = cls.__cache_value.get(name, None)
 
         if name_value:
@@ -151,16 +171,16 @@ class ExchangeDataFieldForeignKey:
 
 class ProcessingField:
 
-    def do_processing(self, data):
+    def do_processing(self, data: dict[str, Any])->Any:
         pass
 
 class SerializerJSONValue:
 
-    def __init__(self, json: dict, model: dict, object_model: Model):
+    def __init__(self, json: dict[str, Any], model: dict[str, Any], object_model: Model):
         self.json = json
         self.model = model
         self.object = object_model
-        self.__next = None
+        self.__next: SerializerJSONValue | None = None
 
     def set_next(self, data):
         self.__next = data
@@ -168,15 +188,14 @@ class SerializerJSONValue:
     def get_next(self):
         return self.__next
 
-
 class SerializerJSON:
 
-    def __init__(self, data: list[dict], exchange_data: ExchangeData):
+    def __init__(self, data: list[dict[str, Any]], exchange_data: ExchangeData):
         self.data_json = data
         self.exchange_data = exchange_data
-        self.__head = None
-        self.__tail = None
-        self.__current = None
+
+        self.__head: SerializerJSONValue | None = None
+        self.__current: SerializerJSONValue | None = None
 
     def serialize(self):
         for value_json in self.data_json:
@@ -192,12 +211,14 @@ class SerializerJSON:
             self.add(value_data)
 
     def add(self, data: SerializerJSONValue):
-        if self.__head is None:
-            self.__head = data
-        else:
-            self.__tail.set_next(data)
 
-        self.__tail = data
+        if self.__head and self.__current:
+            self.__current.set_next(data)
+        else:
+            self.__head = data
+
+        self.__current = data
+
 
     def __iter__(self):
         self.__current = self.__head
@@ -210,3 +231,4 @@ class SerializerJSON:
             return current_data
         else:
             raise StopIteration
+
